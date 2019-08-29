@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
 # --------------------------------------------------------------------------------------------------
 # Rittman Mead Markdown to Confluence Tool
@@ -9,6 +9,8 @@
 # Usage: rest_md2conf.py markdown spacekey
 # --------------------------------------------------------------------------------------------------
 """
+
+from datetime import datetime
 
 import logging
 import sys
@@ -57,7 +59,8 @@ PARSER.add_argument('-l', '--loglevel', default='INFO',
                     help='Use this option to set the log verbosity.')
 PARSER.add_argument('-s', '--simulate', action='store_true', default=False,
                     help='Use this option to only show conversion result.')
-
+PARSER.add_argument('-G', '--tag', help='Git code tag or SHA1')
+PARSER.add_argument('-S', '--scmprefix', help='SCM prefix (appended with tag and the path to the markdownFile)')
 
 ARGS = PARSER.parse_args()
 
@@ -355,6 +358,13 @@ def add_images(page_id, html):
                                     '/download/attachments/%s/%s' % (page_id, basename))
     return html
 
+# Add source header (mutation)
+def add_source_pointer(html):
+    timestamp = datetime.strftime(datetime.now(), '%c')
+    base = os.path.basename(ARGS.markdownFile)
+    bloburl = "%s/%s" % (ARGS.scmprefix, os.path.join(ARGS.tag, ARGS.markdownFile))
+    blurb = "<p><i>This page was auto-generated from <a href=\"%s\">%s version %s</a> on %s</i></p>" % (bloburl, base, ARGS.tag, timestamp)
+    return blurb + html
 
 def add_contents(html):
     """
@@ -614,8 +624,10 @@ def main():
     LOGGER.info('Markdown file:\t%s', MARKDOWN_FILE)
     LOGGER.info('Space Key:\t%s', SPACE_KEY)
 
+    title = ARGS.title
     with open(MARKDOWN_FILE, 'r') as mdfile:
-        title = mdfile.readline().lstrip('#').strip()
+        if title is None:
+            title = mdfile.readline().lstrip('#').strip()
         mdfile.seek(0)
 
     LOGGER.info('Title:\t\t%s', title)
@@ -634,6 +646,9 @@ def main():
         html = add_contents(html)
 
     html = process_refs(html)
+
+    if ARGS.scmprefix && ARGS.tag:
+      html = add_source_pointer(html)
 
     LOGGER.debug('html: %s', html)
 
