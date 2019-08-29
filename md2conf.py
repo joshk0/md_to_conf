@@ -647,7 +647,7 @@ def main():
 
     html = process_refs(html)
 
-    if ARGS.scmprefix && ARGS.tag:
+    if ARGS.scmprefix and ARGS.tag:
       html = add_source_pointer(html)
 
     LOGGER.debug('html: %s', html)
