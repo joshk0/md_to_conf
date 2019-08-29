@@ -61,6 +61,7 @@ PARSER.add_argument('-s', '--simulate', action='store_true', default=False,
                     help='Use this option to only show conversion result.')
 PARSER.add_argument('-G', '--tag', help='Git code tag or SHA1')
 PARSER.add_argument('-S', '--scmprefix', help='SCM prefix (appended with tag and the path to the markdownFile)')
+PARSER.add_argument('-T', '--title', help='Override title of created page (defaults to first heading in file')
 
 ARGS = PARSER.parse_args()
 
