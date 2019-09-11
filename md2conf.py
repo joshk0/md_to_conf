@@ -530,6 +530,7 @@ def update_page(page_id, title, body, version, ancestors, attachments):
         }
 
     response = session.put(url, data=json.dumps(page_json))
+    LOGGER.info('Response: %s', response.text)
     response.raise_for_status()
 
     if response.status_code == 200:
